@@ -29,6 +29,8 @@ public class Test {
             }
         }
 
+
+
         //решение на барање 1
 
         for (Patuvanje patuvanje : nizaPatuvanje) {
