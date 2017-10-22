@@ -1,0 +1,165 @@
+import java.util.Scanner;
+
+public class Test {
+
+    public static void main(String[] args) {
+
+        int n;
+        Scanner in=new Scanner(System.in);
+        n=in.nextInt();
+
+        Patuvanje nizaPatuvanje[]=new Patuvanje[n];
+
+        for (int i=0;i<n;i++){
+            int tip=in.nextInt();
+            if (tip==0){
+                String ime=in.next();
+                int cena =in.nextInt();
+                int vreme=in.nextInt();
+                nizaPatuvanje[i]=new GodishenOdmor(ime,cena,vreme);
+            }
+            else {
+                String ime=in.next();
+                int cena =in.nextInt();
+                int pocD=in.nextInt();
+                int pocM=in.nextInt();
+                int krajD=in.nextInt();
+                int krajM=in.nextInt();
+                nizaPatuvanje[i]=new PraznicnoPatuvanje(ime,cena,pocD,pocM, krajD,krajM);
+            }
+        }
+
+        //решение на барање 1
+
+        for (Patuvanje patuvanje : nizaPatuvanje) {
+            if ((patuvanje instanceof PraznicnoPatuvanje) &&
+                    ((((PraznicnoPatuvanje)patuvanje).getPocetenMesec()) == 6)) {
+                System.out.print(patuvanje.getImeNaAgencija() + " ");
+            }
+        }
+        System.out.println();
+
+
+
+        //решение на барање 2
+
+        int vkupnoVreme = 0;
+        for (Patuvanje patuvanje : nizaPatuvanje) {
+            vkupnoVreme += patuvanje.vratiVremeVoDenovi();
+        }
+        System.out.print(((double) vkupnoVreme / nizaPatuvanje.length) + "\n");
+
+
+
+        //решение на барање 3
+
+        String ime= in.next();
+        int cena = in.nextInt();
+        int vreme = in.nextInt();
+        GodishenOdmor odmor = new GodishenOdmor(ime, cena, vreme);
+
+
+
+        //решение на барање 4
+
+        System.out.println(Patuvanje.vratiMinCena(nizaPatuvanje, n, odmor));
+
+    }
+
+}
+
+
+class Patuvanje {
+
+    private String imeNaAgencija;
+    private int cena;
+
+    public Patuvanje() {}
+
+    public Patuvanje(String imeNaAgencija, int cena) {
+        this.imeNaAgencija = imeNaAgencija;
+        this.cena = cena;
+    }
+
+    public String getImeNaAgencija() { return imeNaAgencija; }
+    public int getCena() { return cena; }
+
+    public void setImeNaAgencija(String imeNaAgencija) { this.imeNaAgencija = imeNaAgencija; }
+    public void setCena(int cena) { this.cena = cena; }
+
+    public int vratiVremeVoDenovi() {
+        return -1;
+    }
+
+    static int vratiMinCena(Patuvanje[] niza, int n, Patuvanje zaSporedba) {
+        int maxVreme = zaSporedba.vratiVremeVoDenovi();
+        int minCena = Integer.MAX_VALUE;
+        for (Patuvanje patuvanje : niza) {
+            if ((patuvanje.vratiVremeVoDenovi() > maxVreme) && (patuvanje.getCena() < minCena))
+                minCena = patuvanje.getCena();
+        }
+        return (minCena == Integer.MAX_VALUE)? 0 : minCena;
+    }
+}
+
+class PraznicnoPatuvanje extends Patuvanje {
+
+    private  int pocetenDen;
+    private int pocetenMesec;
+    private int kraenDen;
+    private int kraenMesec;
+
+    public PraznicnoPatuvanje(String imeNaAgencija, int cena, int pocetenDen, int pocetenMesec, int kraenDen, int kraenMesec) {
+        super(imeNaAgencija, cena);
+        try {
+            if (((kraenMesec - pocetenMesec) * 30) + (kraenDen - pocetenDen) <= 0) {
+                throw new Exception("Iskluchok");
+            }
+        }
+        catch (Exception e) {
+            System.out.println(e.getMessage());
+
+            pocetenDen = pocetenDen + kraenDen;
+            kraenDen = pocetenDen - kraenDen;
+            pocetenDen = pocetenDen - kraenDen;
+
+            pocetenMesec = pocetenMesec + kraenMesec;
+            kraenMesec = pocetenMesec - kraenMesec;
+            pocetenMesec = pocetenMesec - kraenMesec;
+        }
+
+        this.pocetenDen = pocetenDen;
+        this.pocetenMesec = pocetenMesec;
+        this.kraenDen = kraenDen;
+        this.kraenMesec = kraenMesec;
+    }
+
+    @Override
+    public int vratiVremeVoDenovi() {
+        return (((kraenMesec - pocetenMesec) * 30) + (kraenDen - pocetenDen));
+    }
+
+    public int getPocetenMesec() {
+        return pocetenMesec;
+    }
+}
+
+class GodishenOdmor extends Patuvanje {
+
+    private int vreme;
+
+    public GodishenOdmor(String imeNaAgencija, int cena, int vreme) {
+        super(imeNaAgencija, cena);
+        this.vreme = vreme;
+    }
+
+    @Override
+    public int getCena() {
+        return super.getCena() - 1000;
+    }
+
+    @Override
+    public int vratiVremeVoDenovi() {
+        return vreme;
+    }
+}
